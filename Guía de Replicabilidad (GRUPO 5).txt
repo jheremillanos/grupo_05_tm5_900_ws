@@ -1,0 +1,89 @@
+Guía de Replicabilidad (GRUPO 5)
+
+Esta guía describe el procedimiento paso a paso para clonar, compilar y ejecutar el espacio de trabajo del robot Techman TM5-900 en un equipo con Ubuntu 24.04 y ROS 2 Jazzy.
+
+1. Requisitos PreviosSistema Operativo: 
+- Ubuntu 24.04 LTS (Noble Numbat).   
+- Distribución ROS: ROS 2 Jazzy Jalisco.   
+- Conexión a Internet durante el proceso de clonación e instalación
+
+2. Preparación del Sistema y Dependencias
+
+Abre una terminal (Ctrl + Alt + T) y asegúrate de contar con las herramientas básicas de compilación y librerías numéricas requeridas por los nodos de cinemática:
+
+Recomendación: De tener ya instalada todas las librerías y herramientas de compilación, no copie los ultimo 2 comandos.
+
+sudo apt update
+sudo apt install -y git python3-pip python3-colcon-common-extensions python3-rosdep ros-jazzy-rmw-cyclonedds-cpp
+pip install sympy scipy numpy --break-system-packages
+
+3. Clonación del Repositorio
+
+Nota: La rúbrica prohíbe incluir las carpetas de compilación local (build/, install/, log/) en GitHub. Por lo tanto, el repositorio contiene únicamente los paquetes fuente (src/) y los scripts de configuración necesarios.
+
+Ejecuta en tu directorio personal (~):
+
+cd ~
+git clone https://github.com/jheremillanos/grupo_05_tm5_900_ws.git
+cd ~/grupo_05_tm5_900_ws
+
+4. Compilación del Workspace
+
+Dentro de la raíz del espacio de trabajo (~/grupo_05_tm5_900_ws), configura el entorno de ROS 2 Jazzy, define el middleware DDS y compila todos los paquetes con enlaces simbólicos:
+
+cd ~/grupo_05_tm5_900_ws
+source /opt/ros/jazzy/setup.bash
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+colcon build --symlink-install
+source install/setup.bash
+
+5. Ejecución del Proyecto
+
+Terminal 1: Lanzamiento de RViz2 y el Modelo del Robot
+En una primera terminal, levanta la visualización gráfica y los publicadores de estado del robot:
+
+cd ~/grupo_05_tm5_900_ws
+source install/setup.bash
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ros2 launch grupo05_tm5_900_bringup display.launch.py
+
+- Se abrirá RViz2 mostrando el modelo del robot TM5-900 junto con la ventana interactiva   Joint State Publisher GUI.
+
+Terminal 2: Nodo de Cinemática Directa (FK)
+
+Abre una segunda terminal para ejecutar el nodo de cinemática directa, el cual calculará la posición (x, y, z) y orientación en tiempo real a partir del tópico /joint_states:
+
+cd ~/grupo_05_tm5_900_ws
+source install/setup.bash
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ros2 run mi_paquete nodo_cinematica
+
+-Al mover los sliders en la GUI de la Terminal 1, esta terminal mostrará en pantalla la coordenada cartesiana calculada por el modelo D-H.
+
+Terminal 3: Nodo de Cinemática Inversa (IK)
+
+Abre una tercera terminal para activar el nodo que resolverá las coordenadas que lleguen al tópico /target:
+
+cd ~/grupo_05_tm5_900_ws
+source install/setup.bash
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ros2 run mi_paquete jinv_yas
+
+Terminal 4: Publicar Puntos de Prueba al Tópico
+
+Para enviar una coordenada deseada y validar la solución articular calculada por la cinemática inversa, abre otra terminal y publica el punto:
+
+cd ~/grupo_05_tm5_900_ws
+source install/setup.bash
+ros2 topic pub /target geometry_msgs/msg/Point "{x: 0.45, y: 0.0, z: 0.65}"--once
+
+6. Verificación de Tópicos Activos
+
+ros2 topic list
+ros2 topic echo /joint_states
+ros2 topic echo /target
+
+
+
+ 
+
