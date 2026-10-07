@@ -44,7 +44,12 @@ source install/setup.bash
 Terminal 1: Lanzamiento de RViz2 y el Modelo del Robot
 En una primera terminal, levanta la visualización gráfica y los publicadores de estado del robot:
 
+Primero
+
 roslab shell
+
+Segundo
+
 cd ~/grupo_05_tm5_900_ws
 source install/setup.bash
 ros2 launch grupo05_tm5_900_bringup display.launch.py
@@ -56,7 +61,12 @@ Terminal 2: Nodo de Cinemática Directa (FK)
 
 Abre una segunda terminal para ejecutar el nodo de cinemática directa, el cual calculará la posición (x, y, z) y orientación en tiempo real a partir del tópico /joint_states:
 
+Primero
+
 roslab shell
+
+Segundo
+
 cd ~/grupo_05_tm5_900_ws
 source install/setup.bash
 export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
@@ -68,7 +78,12 @@ Terminal 3: Nodo de Cinemática Inversa (IK)
 
 Abre una tercera terminal para activar el nodo que resolverá las coordenadas que lleguen al tópico /target:
 
+Primero
+
 roslab shell
+
+Segundo
+
 cd ~/grupo_05_tm5_900_ws
 source install/setup.bash
 export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
@@ -78,10 +93,15 @@ Terminal 4: Publicar Puntos de Prueba al Tópico
 
 Para enviar una coordenada deseada y validar la solución articular calculada por la cinemática inversa, abre otra terminal y publica el punto:
 
+Primero
+
 roslab shell
+
+Segundo
+
 cd ~/grupo_05_tm5_900_ws
 source install/setup.bash
-ros2 topic pub /target geometry_msgs/msg/Point "{x: 0.45, y: 0.0, z: 0.65}"--once
+ros2 topic pub /target geometry_msgs/msg/Point "{x: 0.45, y: 0.0, z: 0.65}" --once
 
 6. Verificación de Tópicos Activos
 
